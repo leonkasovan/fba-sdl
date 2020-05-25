@@ -22,6 +22,7 @@
 #include <sys/time.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <unistd.h>
 #include <vector>
 #include <fstream>
 #include <avir.h>
