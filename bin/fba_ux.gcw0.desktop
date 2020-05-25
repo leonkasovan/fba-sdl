@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=FBA-RG350
-Comment=Arcade machine emulator
+Name=FBA UX
+Comment=FBA 0.2.97.44 - for setup/vertical mode
 Exec=fbasdl.dge
 Terminal=false
 Type=Application
