@@ -102,7 +102,7 @@ alldir	= burn \
 		dep/generated \
 		sdl-dingux
 
-incdir	= $(foreach dir,$(alldir),-I$(srcdir)$(dir)) -I$(objdir)dep/generated
+incdir	= $(foreach dir,$(alldir),-I$(srcdir)$(dir)) -I$(objdir)dep/generated -I~/RG350_src/avir-2.5 -I~/RG350_src/png++-0.2.9/output/include -I~/RG350_src/json_include/single_include -I~/RG350_src/boost_1_73_0
 
 lib = -lstdc++ -lSDL -lSDL_image -lz -lpng
 
@@ -322,10 +322,10 @@ alldep	= $(foreach file,$(autobj:.o=.c), \
 
 HOSTCC = gcc
 HOSTCXX = g++
-CC	= mipsel-linux-gcc
-CXX	= mipsel-linux-g++
+CC	= /opt/gcw0-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-gcc
+CXX	= /opt/gcw0-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-g++
 LD	= $(CXX)
-AS	= mipsel-linux-as
+AS	= /opt/gcw0-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-as
 
 HOSTCFLAGS = $(incdir)
 CFLAGS   = -O2 -G0 -mips32r2 -pipe -fno-builtin -fno-common -mno-shared -ffast-math \
