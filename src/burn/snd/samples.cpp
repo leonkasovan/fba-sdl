@@ -338,23 +338,44 @@ void BurnSampleInit(INT32 bAdd /*add samples to stream?*/)
 	}
 
 	strcpy(setname, BurnDrvGetTextA(DRV_SAMPLENAME));
-	sprintf(path, "%s%s.zip", szTempPath, setname);
+	sprintf(path, "%s/%s.zip", szTempPath, setname);
+
+	// debug info
+	printf("Samples path:%s\n",path);
 	
 	FILE *test = fopen(path, "rb");
 	if (test) 
 	{
 		nEnableSamples = 1;
 		fclose(test);
+		// debug
+		printf("File exist : enable samples\n");
+	}
+	else
+	{
+		// debug
+		printf("File is missing : samples disabled\n");
 	}
 	
-#ifdef INCLUDE_7Z_SUPPORT
-	sprintf(path, "%s%s.7z", szTempPath, setname);
 	
+#ifdef INCLUDE_7Z_SUPPORT
+	sprintf(path, "%s/%s.7z", szTempPath, setname);
+	
+	// debug info
+	printf("Samples path:%s\n",path);
+
 	test = fopen(path, "rb");
 	if (test)
 	{	
 		nEnableSamples = 1;
 		fclose(test);
+		// debug
+		printf("File exist : enable samples\n");
+	}
+	else
+	{
+		// debug
+		printf("File is missing : samples disabled\n");
 	}
 #endif
 	
@@ -391,17 +412,25 @@ void BurnSampleInit(INT32 bAdd /*add samples to stream?*/)
 			continue;
 		}
 
-		sprintf (path, "%s%s", szTempPath, setname);
+		// don't add .zip because it will be added by ZipLoadOneFile
+		sprintf (path, "%s/%s", szTempPath, setname);
+
+		// debug info
+		printf("Wav file:%s\n",szSampleName);
 
 		destination = NULL;
 		length = 0;
 		ZipLoadOneFile((char*)path, (const char*)szSampleName, &destination, &length);
 		
 		if (length) {
+			// debug info
+			printf("Wav is found\n");
 			sample_ptr->flags = si.nFlags;
 			bprintf(0, _T("Loading \"%S\": "), szSampleName);
 			make_raw((UINT8*)destination, length);
 		} else {
+			// debug info
+			printf("Wav is missing\n");
 			sample_ptr->flags = SAMPLE_IGNORE;
 		}
 		
@@ -453,8 +482,7 @@ void BurnSampleInitOne(INT32 sample)
 	sprintf(szTempPath, _TtoA(SAMPLE_DIRECTORY));
 
 	strcpy(setname, BurnDrvGetTextA(DRV_SAMPLENAME));
-	sprintf(path, "%s%s.zip", szTempPath, setname);
-
+	
 	struct BurnSampleInfo si;
 	BurnDrvGetSampleInfo(&si, sample);
 	char *szSampleNameTmp = NULL;
@@ -472,13 +500,19 @@ void BurnSampleInitOne(INT32 sample)
 		return;
 	}
 
-	sprintf (path, "%s%s", szTempPath, setname);
+	// don't add .zip because it will be added by ZipLoadOneFile
+	sprintf (path, "%s/%s", szTempPath, setname);
+
+	// debug info
+	printf("Samples path (initOne):%s.zip\n",path);
+	printf("Wav file (initOne):%s\n",szSampleName);
 
 	destination = NULL;
 	length = 0;
 	ZipLoadOneFile((char*)path, (const char*)szSampleName, &destination, &length);
 		
 	if (length) {
+		printf("Wav is found (initOne)\n");
 		make_raw((UINT8*)destination, length);
 	}
 
