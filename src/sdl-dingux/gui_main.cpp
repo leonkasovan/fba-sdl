@@ -298,6 +298,7 @@ void load_preview(unsigned int numero)
 	char *ext[2] = {"png", "bmp"};
 	FILE *fp;
 
+	// search previews first (png, then bmp)
 	for(int i = 0; i < 2; i++) {
 		sprintf((char*)g_string, "%s/%s.%s", szAppPreviewPath, ROMLIST(zip, numero), ext[i]);
 
@@ -309,8 +310,10 @@ void load_preview(unsigned int numero)
 			flag_preview = 1;
 			return;
 		} 
+	}
 
-		// then check parent rom
+	// search parent previews next (png, then bmp)
+	for(int i = 0; i < 2; i++) {
 		if(strcmp(ROMLIST(parent, numero), "fba") != 0) {
 			sprintf((char*)g_string, "%s/%s.%s", szAppPreviewPath, ROMLIST(parent, numero), ext[i]);
 
@@ -322,15 +325,17 @@ void load_preview(unsigned int numero)
 				return;
 			} 
 		}
-		if(0==i) for(int j=9; j>=0; --j) {
-			sprintf((char*)g_string, "%s/%s%ip.png", szAppSavePath, ROMLIST(zip, numero),j);
-			if((preview = IMG_Load(g_string)) != NULL) {
-				drawSprite(bg, bg_temp, 124, 3, 124, 3, 192, 112);
-				drawSprite(preview, bg_temp, 0, 0, 220 - preview->w / 2, 3, 192, 112);
+	}
 
-				flag_preview = 1;
-				return;
-			}
+	// search savestate at the end (png only)
+	for(int j=9; j>=0; --j) {
+		sprintf((char*)g_string, "%s/%s%ip.png", szAppSavePath, ROMLIST(zip, numero),j);
+		if((preview = IMG_Load(g_string)) != NULL) {
+			drawSprite(bg, bg_temp, 124, 3, 124, 3, 192, 112);
+			drawSprite(preview, bg_temp, 0, 0, 220 - preview->w / 2, 3, 192, 112);
+
+			flag_preview = 1;
+			return;
 		}
 	}
 
