@@ -1,0 +1,5 @@
+obj
+src/dep/generated
+bin/fbasdl.dge
+bin/fba.opk
+bin/fba_ui_only.opk
