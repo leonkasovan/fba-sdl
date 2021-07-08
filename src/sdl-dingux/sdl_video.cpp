@@ -2065,7 +2065,8 @@ void VideoExit()
 	free(BurnVideoBuffer);
 	BurnVideoBuffer = NULL;
 	BurnerVideoTrans = Blit_null;
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
+	SDL_FreeSurface(screen);
+//	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void VideoClear()

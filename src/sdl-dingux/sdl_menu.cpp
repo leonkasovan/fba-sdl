@@ -25,8 +25,9 @@
 #include <unistd.h>
 #include <vector>
 #include <fstream>
-#include <avir.h>
-#include <png++/png.hpp>
+#include <iostream>
+//#include <avir.h>
+//#include <png++/png.hpp>
 
 #include "version.h"
 #include "burner.h"
@@ -99,37 +100,37 @@ static inline inGameScreen_t * CopyScreen(SDL_Surface * src)
 
 void pngsave(const char * filename, uint16_t * rgb565, int w, int h, int outw, int outh)
 {
-	if(w <= 0 || h <= 0 || !rgb565 || !filename || outw <= 0 || outh <= 0)
-		return;
-	try {
-		const size_t ow = outw;
-		const size_t oh = outh;
-		png::image< png::rgb_pixel,png::solid_pixel_buffer<png::rgb_pixel> > img(ow,oh);
-		const int npixels = w * h;
-		std::vector<uint8_t> imgu8(npixels * 3);
-		// We have to convert from RGB565 to RGB each coded on uint8 because PNG doesn't support RGB565
-		for (int i = 0; i < npixels; ++i) {
-			const uint16_t v = rgb565[i];
-			// Convert and rescale to the full 0-255 range
-			// See http://stackoverflow.com/a/29326693
-			const uint8_t red5 = (v & 0xF800) >> 11;
-			const uint8_t green6 = (v & 0x7E0) >> 5;
-			const uint8_t blue5 = (v & 0x001F);
-			imgu8[3 * i] = ((red5 * 255 + 15) / 31);
-			imgu8[3 * i + 1] = ((green6 * 255 + 31) / 63);
-			imgu8[3 * i + 2] = ((blue5 * 255 + 15) / 31);
-		}
-		avir :: CImageResizer<> imageResizer( 8 );
-		uint8_t * Inbuf = (uint8_t *)imgu8.data();
-		uint8_t * Outbuf = (uint8_t *)img.get_pixbuf().get_bytes().data();
-		imageResizer.resizeImage( Inbuf, w, h, 0, Outbuf, ow, oh, 3, 0 );
-		img.write(filename);
-	}
-	catch(std::exception const& error)
-	{
-		std::cerr << "png++ err: " << error.what() << std::endl;
-		return;
-	}
+//	if(w <= 0 || h <= 0 || !rgb565 || !filename || outw <= 0 || outh <= 0)
+//		return;
+//	try {
+//		const size_t ow = outw;
+//		const size_t oh = outh;
+//		png::image< png::rgb_pixel,png::solid_pixel_buffer<png::rgb_pixel> > img(ow,oh);
+//		const int npixels = w * h;
+//		std::vector<uint8_t> imgu8(npixels * 3);
+//		// We have to convert from RGB565 to RGB each coded on uint8 because PNG doesn't support RGB565
+//		for (int i = 0; i < npixels; ++i) {
+//			const uint16_t v = rgb565[i];
+//			// Convert and rescale to the full 0-255 range
+//			// See http://stackoverflow.com/a/29326693
+//			const uint8_t red5 = (v & 0xF800) >> 11;
+//			const uint8_t green6 = (v & 0x7E0) >> 5;
+//			const uint8_t blue5 = (v & 0x001F);
+//			imgu8[3 * i] = ((red5 * 255 + 15) / 31);
+//			imgu8[3 * i + 1] = ((green6 * 255 + 31) / 63);
+//			imgu8[3 * i + 2] = ((blue5 * 255 + 15) / 31);
+//		}
+//		avir :: CImageResizer<> imageResizer( 8 );
+//		uint8_t * Inbuf = (uint8_t *)imgu8.data();
+//		uint8_t * Outbuf = (uint8_t *)img.get_pixbuf().get_bytes().data();
+//		imageResizer.resizeImage( Inbuf, w, h, 0, Outbuf, ow, oh, 3, 0 );
+//		img.write(filename);
+//	}
+//	catch(std::exception const& error)
+//	{
+//		std::cerr << "png++ err: " << error.what() << std::endl;
+//		return;
+//	}
 }
 
 #define SP_SCREEN_W 320
