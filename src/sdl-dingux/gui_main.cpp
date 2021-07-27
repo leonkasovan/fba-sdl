@@ -22,7 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <libgen.h>
 
 #include <algorithm>
 #include <map>
@@ -249,7 +248,7 @@ void lang_put_stringM( uint32_t romID, unsigned int pos_x, unsigned int pos_y, u
 	if(romID>=nBurnDrvCount || pos_x<0 || pos_y<0 || !idx2RGBAcolor.count(coloridx))
 		return;
 
-//	lang_DrawString( romID, (uint32_t *)lang_fontsurf->pixels, pos_x, pos_y, GUI_SCREEN_W, idx2RGBAcolor[coloridx] );
+	lang_DrawString( romID, (uint32_t *)lang_fontsurf->pixels, pos_x, pos_y, GUI_SCREEN_W, idx2RGBAcolor[coloridx] );
 }
 
 static inline void lang_show_gamelist_lines()
@@ -1755,7 +1754,7 @@ void ss_prog_run(void)
 						options.rotate = 0;
 					ConfigGameSave();
 
-//					SDL_QuitSubSystem(SDL_INIT_VIDEO);
+					SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 					// run emulator here
 					RunEmulator(nBurnDrvActive);
@@ -1839,14 +1838,14 @@ void set_language()
 	gui_lang.gamelist_line_height = LINE_HEIGHT;
 	gui_lang.gamelist_line_count = LINES_COUNT;
 	gui_lang.gamelist_line_count_half = LINES_COUNT_HALF;
-//	if(!use_language_pack) return;
-//
-//	extern size_t pixfont_height;
-//	if(!pixfont_height)
-//		return;
-//	gui_lang.gamelist_line_height = pixfont_height;
-//	gui_lang.gamelist_line_count = (LINE_HEIGHT * LINES_COUNT+pixfont_height-1) / gui_lang.gamelist_line_height;
-//	gui_lang.gamelist_line_count_half = gui_lang.gamelist_line_count / 2;
+	if(!use_language_pack) return;
+
+	extern size_t pixfont_height;
+	if(!pixfont_height)
+		return;
+	gui_lang.gamelist_line_height = pixfont_height;
+	gui_lang.gamelist_line_count = (LINE_HEIGHT * LINES_COUNT+pixfont_height-1) / gui_lang.gamelist_line_height;
+	gui_lang.gamelist_line_count_half = gui_lang.gamelist_line_count / 2;
 }
 
 void gui_menu_main()
@@ -1909,11 +1908,11 @@ void gui_menu_main()
 						romlist_y, // y
 						ROMLIST(longueur, fID), // length
 						df_color? BLANC : ROMLIST(etat, fID)); // color
-//				else
-//					lang_put_stringM(romID,
-//						START_X, // x
-//						romlist_y, // y
-//						df_color? BLANC : ROMLIST(etat, fID)); // color
+				else
+					lang_put_stringM(romID,
+						START_X, // x
+						romlist_y, // y
+						df_color? BLANC : ROMLIST(etat, fID)); // color
 				romlist_y += gui_lang.gamelist_line_height;
 			}
 		} else {
@@ -1926,11 +1925,11 @@ void gui_menu_main()
 						romlist_y, 
 						ROMLIST(longueur, fID), 
 						df_color? BLANC : ROMLIST(etat, fID));
-//				else
-//					lang_put_stringM(romID,
-//						START_X, // x
-//						romlist_y, // y
-//						df_color? BLANC : ROMLIST(etat, fID)); // color
+				else
+					lang_put_stringM(romID,
+						START_X, // x
+						romlist_y, // y
+						df_color? BLANC : ROMLIST(etat, fID)); // color
 				romlist_y += gui_lang.gamelist_line_height;
 			}
 		}
@@ -2213,8 +2212,7 @@ void GuiRun()
 {
 	// fill data with data
 	gui_sort_romlist();
-	//use_language_pack = gui_load_language_pack();
-	use_language_pack = false;
+	use_language_pack = gui_load_language_pack();
 	set_language();
 
 	gui_screen = SDL_SetVideoMode(GUI_SCREEN_W, GUI_SCREEN_H, 16, SDL_SWSURFACE);
