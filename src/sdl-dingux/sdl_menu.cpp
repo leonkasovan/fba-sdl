@@ -26,7 +26,19 @@
 #include <vector>
 #include <fstream>
 #include <avir.h>
+#if defined(OD_LEPUS) && !defined(__GLIBC__)
+// To pass Endianness test in <png++/config.h>
+#define __GLIBC__
+// To include strerror_r from <png++/error.hpp>
+#define _POSIX_C_SOURCE 200112L
+#undef _GNU_SOURCE
 #include <png++/png.hpp>
+#define _GNU_SOURCE
+#undef __POSIX_C_SOURCE
+#undef __GLIBC__
+#else
+#include <png++/png.hpp>
+#endif
 
 #include "version.h"
 #include "burner.h"

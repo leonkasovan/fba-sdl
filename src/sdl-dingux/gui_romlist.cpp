@@ -28,6 +28,10 @@
 #include <fstream>
 #include <sstream>
 #include <streambuf>
+#if defined(OD_LEPUS)
+// Needed in lepus to include stat definition
+#include <sys/stat.h>
+#endif
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
