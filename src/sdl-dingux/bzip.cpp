@@ -208,7 +208,7 @@ static int CheckRoms()
 				char* szName = "Unknown";
 				RomDescribe(&BzipDetail, &ri);
 				BurnDrvGetRomName(&szName, i, 0);
-				BzipDetail.Add(_T("%hs was not found.\n"), szName);
+				BzipDetail.Add(_T("%s was not found.\n"), szName);
 			}
 
 			if (nError == 0) {
@@ -277,9 +277,9 @@ static int __cdecl BzipBurnLoadRom(unsigned char* Dest, int* pnWrote, int i)
 		if (ri.nType & BRF_SND) {
 			_stprintf (szText + _tcslen(szText), _T(" %s"), _T("sound "));
 		}
-		_stprintf(szText + _tcslen(szText), _T("(%hs)..."), pszRomName);
+		_stprintf(szText + _tcslen(szText), _T("(%s)..."), pszRomName);
 	} else {
-		_stprintf(szText + _tcslen(szText), _T(" %hs..."), pszRomName);
+		_stprintf(szText + _tcslen(szText), _T(" %s..."), pszRomName);
 	}
 	ProgressUpdateBurner(ri.nLen ? 1.0 / ((double)nTotalSize / ri.nLen) : 0, szText, 0);
 	// FIXME: eliminate later in favor of ProgressUpdateBurner
@@ -371,11 +371,7 @@ int BzipOpen(bool bootApp)
 			free(szBzipName[z]);
 			szBzipName[z] = (TCHAR*)malloc(MAX_PATH * sizeof(TCHAR));
 
-#if OD_LEPUS
 			_stprintf(szBzipName[z], _T("%s%s"), szAppRomPaths[d], szName);
-#else
-			_stprintf(szBzipName[z], _T("%s%hs"), szAppRomPaths[d], szName);
-#endif
 
 			if (ZipOpen(TCHARToANSI(szBzipName[z], NULL, 0)) == 0) {	// Open the rom zip file
 				nZipsFound++;
@@ -435,13 +431,13 @@ int BzipOpen(bool bootApp)
 						RomDescribe(&BzipDetail, &ri);
 
 						if (RomFind[i].nState == 2) {
-							BzipDetail.Add(_T("%hs has a CRC of %.8X. (It should be %.8X.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nCrc, ri.nCrc);
+							BzipDetail.Add(_T("%s has a CRC of %.8X. (It should be %.8X.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nCrc, ri.nCrc);
 						}
 						if (RomFind[i].nState == 3) {
-							BzipDetail.Add(_T("%hs is %dk which is incomplete. (It should be %dkB.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nLen >> 10, ri.nLen >> 10);
+							BzipDetail.Add(_T("%s is %dk which is incomplete. (It should be %dkB.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nLen >> 10, ri.nLen >> 10);
 						}
 						if (RomFind[i].nState == 4) {
-							BzipDetail.Add(_T("%hs is %dk which is too big. (It should be %dkB.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nLen >> 10, ri.nLen >> 10);
+							BzipDetail.Add(_T("%s is %dk which is too big. (It should be %dkB.)\n"), GetFilenameA(List[nFind].szName), List[nFind].nLen >> 10, ri.nLen >> 10);
 						}
 					}
 				}
@@ -451,7 +447,7 @@ int BzipOpen(bool bootApp)
 
 		} else {
 			if (!bootApp) {
-				BzipText.Add(_T("Couldn't find %hs;\n"), szName);
+				BzipText.Add(_T("Couldn't find %s;\n"), szName);
 			}
 		}
 

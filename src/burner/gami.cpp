@@ -354,7 +354,7 @@ static void GameInpInitMacros()
 			pgi->nType = BIT_DIGITAL;
 			pgi->Macro.nMode = 0;
 
-			sprintf(pgi->Macro.szName, "P%i 3× Punch", nPlayer + 1);
+			sprintf(pgi->Macro.szName, "P%i 3ï¿½ Punch", nPlayer + 1);
 			for (INT32 j = 0; j < 3; j++) {
 				BurnDrvGetInputInfo(&bii, nPunchInputs[nPlayer][j]);
 				pgi->Macro.pVal[j] = bii.pVal;
@@ -370,7 +370,7 @@ static void GameInpInitMacros()
 			pgi->nType = BIT_DIGITAL;
 			pgi->Macro.nMode = 0;
 
-			sprintf(pgi->Macro.szName, "P%i 3× Kick", nPlayer + 1);
+			sprintf(pgi->Macro.szName, "P%i 3ï¿½ Kick", nPlayer + 1);
 			for (INT32 j = 0; j < 3; j++) {
 				BurnDrvGetInputInfo(&bii, nKickInputs[nPlayer][j]);
 				pgi->Macro.pVal[j] = bii.pVal;
@@ -1023,7 +1023,7 @@ static TCHAR* InpMacroToString(struct GameInp* pgi)
 		for (INT32 i = 0; i < 4; i++) {
 			if (pgi->Macro.pVal[i]) {
 				BurnDrvGetInputInfo(&bii, pgi->Macro.nInput[i]);
-				_stprintf(szString + _tcslen(szString), _T(" \"%hs\" 0x%02X"), bii.szName, pgi->Macro.nVal[i]);
+				_stprintf(szString + _tcslen(szString), _T(" \"%s\" 0x%02X"), bii.szName, pgi->Macro.nVal[i]);
 			}
 		}
 
@@ -1750,10 +1750,10 @@ INT32 GameInpWrite(FILE* h)
 		if (pgi->nInput & GIT_GROUP_MACRO) {
 			switch (pgi->nInput) {
 				case GIT_MACRO_AUTO:									// Auto-assigned macros
-					_ftprintf(h, _T("macro  \"%hs\" "), pgi->Macro.szName);
+					_ftprintf(h, _T("macro  \"%s\" "), pgi->Macro.szName);
 					break;
 				case GIT_MACRO_CUSTOM:									// Custom macros
-					_ftprintf(h, _T("custom \"%hs\" "), pgi->Macro.szName);
+					_ftprintf(h, _T("custom \"%s\" "), pgi->Macro.szName);
 					break;
 				default:												// Unknown -- ignore
 					continue;

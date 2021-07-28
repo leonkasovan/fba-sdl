@@ -939,7 +939,7 @@ void logerror(char* szFormat, ...)
 
 	va_end(vaFormat);
 
-	bprintf(PRINT_ERROR, _T("%hs"), szLogMessage);
+	bprintf(PRINT_ERROR, _T("%s"), szLogMessage);
 
 	return;
 }
