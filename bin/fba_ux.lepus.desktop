@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=FBA UX
+Comment=FBA 0.2.97.44 - for setup/vertical mode
+Exec=fbasdl_lepus.dge
+Terminal=false
+Type=Application
+StartupNotify=true
+Icon=fba_icon
+Categories=emulators;
+X-OD-NeedsDownscaling=true
