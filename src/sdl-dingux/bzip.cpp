@@ -371,7 +371,11 @@ int BzipOpen(bool bootApp)
 			free(szBzipName[z]);
 			szBzipName[z] = (TCHAR*)malloc(MAX_PATH * sizeof(TCHAR));
 
+#if OD_LEPUS
+			_stprintf(szBzipName[z], _T("%s%s"), szAppRomPaths[d], szName);
+#else
 			_stprintf(szBzipName[z], _T("%s%hs"), szAppRomPaths[d], szName);
+#endif
 
 			if (ZipOpen(TCHARToANSI(szBzipName[z], NULL, 0)) == 0) {	// Open the rom zip file
 				nZipsFound++;
