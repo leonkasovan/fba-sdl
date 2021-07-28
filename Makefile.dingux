@@ -8,8 +8,15 @@
 #	Flags. Uncomment any of these declarations to enable their function.
 #
 
+# Target device (gcw0, lepus)
+DEVICE = gcw0
+
 # Specify the name of the executable file
-NAME = fbasdl.dge
+ifeq ($(DEVICE),lepus)
+    NAME = fbasdl_lepus.dge
+else
+    NAME = fbasdl.dge
+endif
 
 # Check for changes in header files
 DEPEND = 1
@@ -24,7 +31,9 @@ PERL = 1
 BUILD_A68K = 1
 BUILD_C68K = 1
 BUILD_M68K = 1
-USE_LIBAO = 1
+ifneq ($(DEVICE),lepus)
+    USE_LIBAO = 1
+endif
 
 #
 #	Specify paths/files
@@ -322,15 +331,24 @@ alldep	= $(foreach file,$(autobj:.o=.c), \
 
 HOSTCC = gcc
 HOSTCXX = g++
-CC	= /opt/opendingux-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-gcc
-CXX	= /opt/opendingux-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-g++
+ifeq ($(DEVICE),lepus)
+    TOOLCHAIN_DIR=/opt/lepus-toolchain/usr/bin/
+    TOOLCHAIN_PREFIX=mipsel-lepus-linux-musl-
+    CFLAGS_ARCH = -mips32
+else
+    TOOLCHAIN_DIR=/opt/opendingux-toolchain/usr/bin/
+    TOOLCHAIN_PREFIX=mipsel-gcw0-linux-uclibc-
+    CFLAGS_ARCH = -mips32r2
+endif
+CC	= $(TOOLCHAIN_DIR)$(TOOLCHAIN_PREFIX)gcc
+CXX	= $(TOOLCHAIN_DIR)$(TOOLCHAIN_PREFIX)g++
 LD	= $(CXX)
-AS	= /opt/opendingux-toolchain/usr/bin/mipsel-gcw0-linux-uclibc-as
+AS	= $(TOOLCHAIN_DIR)$(TOOLCHAIN_PREFIX)as
 
 HOSTCFLAGS = $(incdir)
-CFLAGS   = -O3 -G0 -mips32r2 -pipe -fno-builtin -fno-common -mno-shared -ffast-math \
+CFLAGS   = -O3 -G0 $(CFLAGS_ARCH) -pipe -fno-builtin -fno-common -mno-shared -ffast-math \
 		-fomit-frame-pointer -fexpensive-optimizations -Wno-write-strings -DLSB_FIRST
-CXXFLAGS = -std=gnu++11 -O3 -G0 -mips32r2 -pipe -fno-builtin -fno-common -mno-shared -ffast-math \
+CXXFLAGS = -std=gnu++11 -O3 -G0 $(CFLAGS_ARCH) -pipe -fno-builtin -fno-common -mno-shared -ffast-math \
 		-fomit-frame-pointer -fexpensive-optimizations -Wno-write-strings -DLSB_FIRST
 
 CFLAGS += -D__cdecl="" -D__fastcall="" -Wno-narrowing
@@ -342,6 +360,10 @@ ifdef USE_LIBAO
 endif
 
 DEF = -DUSE_SPEEDHACKS -DBUILD_SDL
+
+ifeq ($(DEVICE),lepus)
+    DEF += -DOD_LEPUS
+endif
 
 ifdef	DEBUG
 	DEF += -DFBA_DEBUG
@@ -400,11 +422,11 @@ ifeq ($(MAKELEVEL),0)
 ifdef DEPEND
 
 all:	init $(autdep) $(autobj)
-	@$(MAKE) -f Makefile.dingux
+	@$(MAKE) -f Makefile.dingux DEVICE=$(DEVICE)
 else
 
 all:	init $(autobj)
-	@$(MAKE) -f Makefile.dingux
+	@$(MAKE) -f Makefile.dingux DEVICE=$(DEVICE)
 endif
 else
 
