@@ -31,9 +31,7 @@ PERL = 1
 BUILD_A68K = 1
 BUILD_C68K = 1
 BUILD_M68K = 1
-ifneq ($(DEVICE),lepus)
-    USE_LIBAO = 1
-endif
+USE_LIBAO = 1
 
 #
 #	Specify paths/files
