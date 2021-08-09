@@ -1958,10 +1958,6 @@ int VideoInit()
 			VideoBufferWidth  = gcd(VideoBufferWidth, modes[0]->w);
 			VideoBufferHeight = gcd(VideoBufferHeight, modes[0]->h);		    
 		    }
-		    
-		    /* TODO: Kung fu Master This must be valid but for now it fails in OD Beta 20210809 */
-		    if (VideoBufferWidth == 256 && VideoBufferHeight == 240)
-			VideoBufferHeight = 256;
 
 		    if (hwscale == 1) //Aspect
 			setenv("SDL_VIDEO_KMSDRM_SCALING_MODE", "1", 1);
@@ -2023,9 +2019,22 @@ int VideoInit()
 	nBurnPitch = VideoBufferWidth * 2;
 
 	PhysicalBufferWidth = screen->w;
+#ifdef DEVICE_GCW0
+	/* If resolution adjusted by gcd for hardware scaling is lesser than original */
+	/* then  adjust the buffer size */
+	if (hwscale > 0) {
+	    int bVideoBufferWidth, bVideoBufferHeight;
+	    BurnDrvGetFullSize(&bVideoBufferWidth, &bVideoBufferHeight);
+	    if (bVideoBufferWidth < VideoBufferWidth) bVideoBufferWidth = VideoBufferWidth;
+	    if (bVideoBufferHeight < VideoBufferHeight) bVideoBufferHeight = VideoBufferHeight;
+	    BurnVideoBuffer = (unsigned short *)malloc(bVideoBufferWidth * bVideoBufferHeight * 2);
+	    memset(BurnVideoBuffer, 0, bVideoBufferWidth * bVideoBufferHeight * 2);
+	} else {
+#endif
 	BurnVideoBuffer = (unsigned short *)malloc(VideoBufferWidth * VideoBufferHeight * 2);
 	memset(BurnVideoBuffer, 0, VideoBufferWidth * VideoBufferHeight * 2);
 #ifdef DEVICE_GCW0
+	}
 #endif
 
 #ifdef DEVICE_GCW0
