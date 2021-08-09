@@ -1415,6 +1415,33 @@ static void Blitrf_256x256_to_320x240()
 	}
 }
 
+static void Blit_256x248_to_320x240() 
+{
+	// 256x248
+	unsigned short * p = &VideoBuffer[(320-256)/2];
+	unsigned short * q = &BurnVideoBuffer[0];
+	for (int i = 0; i < 240; i++) {
+		memcpy( p, q, 256 * 2 );
+		p += 320;
+		q += 256;
+		if(i % 32 == 0) q += 256;
+	}
+}
+
+static void Blitf_256x248_to_320x240() 
+{
+	// 256x256
+	unsigned short *p = &VideoBuffer[(320-256)/2];
+	unsigned short *q = &BurnVideoBuffer[256 * 256 - 1];
+	for (int i = 0; i < 240; i++) {
+		for(int j = 0; j < 256; j++) {
+			*p++ = *q--;
+		}
+		p += 64;
+		if(i % 32 == 0) q -= 256;
+	}
+}
+
 static void Blitr_256x248_to_320x240()
 {
 	// 256x248 rotate to 232x240
@@ -1828,7 +1855,8 @@ BLIT_TABLE blit_table[] = {
 	{320, 240, 280, 224, Blit,                    Blitf,                    Blitr_280x224_to_320x240, Blitrf_280x224_to_320x240}, // Konami (blswhstl)
 	{320, 240, 272, 236, Blit,                    Blitf,                    Blitr_272x236_to_320x240, Blitr_272x236_to_320x240 }, // (igmo)
 	{320, 240, 256, 256, Blit_256x256_to_320x240, Blitf_256x256_to_320x240, Blitr_256x256_to_320x240, Blitrf_256x256_to_320x240}, // (ttmahjng)
-	{320, 240, 256, 248, Blit,                    Blitf,                    Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (mrflea)
+	{320, 240, 256, 248, Blit_256x248_to_320x240, Blitf_256x248_to_320x240, Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (mrflea)
+	{320, 240, 256, 246, Blit_256x248_to_320x240, Blitf_256x248_to_320x240, Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (kung fu master)
 	{320, 240, 256, 240, Blit,                    Blitf,                    Blitr_256x240_to_320x240, Blitrf_256x240_to_320x240}, // Sega, Capcom
 	{320, 240, 256, 234, Blit,                    Blitf,                    Blitr_256x234_to_320x240, Blitr_256x234_to_320x240 }, // (arabian)
 	{320, 240, 256, 224, Blit,                    Blitf,                    Blitr_256x224_to_320x240, Blitrf_256x224_to_320x240}, // Capcom, Sega
@@ -1847,6 +1875,27 @@ void VideoTrans()
 	BurnerVideoTrans();
 	if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
 }
+
+#ifdef DEVICE_GCW0
+static int gcd(int a, int b, int step=0, int dir=-1)
+{
+    Uint16 tmp=0,save_a=a,save_b=b;
+    if (step >= 62) {
+	return save_b;
+    } else {
+	while (a != 0) {
+	    tmp = a;
+	    a = b % a;
+	    b = tmp;
+	}
+	if (save_b/b > 31) {
+	    return gcd(save_a+((step+1)*(dir*(-1))),save_b,step+1,dir*(-1));
+	} else {
+	    return save_a;
+	}
+    }
+}
+#endif
 
 int VideoInit()
 {
@@ -1869,15 +1918,51 @@ int VideoInit()
 	printf("w=%d h=%d\n",VideoBufferWidth, VideoBufferHeight);
 
 	if (hwscale > 0) {
+		/* OD Beta use kmsdrm backend */
+		char buf[7] = "\0";
+	        SDL_VideoDriverName(&buf[0], 20);
+	        if (strcmp(&buf[0], "kmsdrm")==0) {
+		    // Take into account GCD for IPU Scaling.
+		    SDL_Rect **modes = SDL_ListModes(screen->format,SDL_FULLSCREEN|SDL_HWSURFACE);
 
-		FILE* aspect_ratio_file = fopen("/sys/devices/platform/jz-lcd.0/keep_aspect_ratio", "w");
-		if (aspect_ratio_file) {
-			if (hwscale == 1) { //Aspect
-				fwrite("1", 1, 1, aspect_ratio_file);
-			} else if (hwscale == 2) { //Fullscreen
-				fwrite("0", 1, 1, aspect_ratio_file);
-			}
-			fclose(aspect_ratio_file);
+		    if (options.rotate == 1 || options.rotate == 3) {
+			VideoBufferHeight = gcd(VideoBufferHeight, modes[0]->w);
+			VideoBufferWidth  = gcd(VideoBufferWidth, modes[0]->h);
+		    } else {
+			VideoBufferWidth  = gcd(VideoBufferWidth, modes[0]->w);
+			VideoBufferHeight = gcd(VideoBufferHeight, modes[0]->h);		    
+		    }
+		    
+		    /* TODO: Kung fu Master This must be valid but for now it fails in OD Beta 20210809 */
+		    if (VideoBufferWidth == 256 && VideoBufferHeight == 240)
+			VideoBufferHeight = 256;
+
+		    if (hwscale == 1) //Aspect
+			setenv("SDL_VIDEO_KMSDRM_SCALING_MODE", "1", 1);
+		    else if (hwscale == 2) //Fullscreen
+			setenv("SDL_VIDEO_KMSDRM_SCALING_MODE", "0", 1);
+		    else if (hwscale == 3) //Integer scaling
+			setenv("SDL_VIDEO_KMSDRM_SCALING_MODE", "2", 1);
+		} else {
+		    FILE* aspect_ratio_file = fopen("/sys/devices/platform/jz-lcd.0/keep_aspect_ratio", "w");
+		    if (aspect_ratio_file) {
+			    if (hwscale == 1) { //Aspect
+				    fwrite("1", 1, 1, aspect_ratio_file);
+			    } else if (hwscale == 2) { //Fullscreen
+				    fwrite("0", 1, 1, aspect_ratio_file);
+			    }
+			    fclose(aspect_ratio_file);
+		    }
+		    
+		    FILE* integer_scaling = fopen("/sys/devices/platform/jz-lcd.0/integer_scaling", "w");
+		    if (integer_scaling) {
+			    if (hwscale == 3) { //Integer scaling
+				    fwrite("1", 1, 1, integer_scaling);
+			    } else {
+				    fwrite("0", 1, 1, integer_scaling);
+			    }
+			    fclose(integer_scaling);
+		    }
 		}
 
 		if (options.rotate == 1 || options.rotate == 3) {
