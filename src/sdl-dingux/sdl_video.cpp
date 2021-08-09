@@ -1414,6 +1414,32 @@ static void Blitrf_256x256_to_320x240()
 		p += 80;
 	}
 }
+static void Blit_256x246_to_320x240() 
+{
+	// 256x248
+	unsigned short * p = &VideoBuffer[(320-256)/2];
+	unsigned short * q = &BurnVideoBuffer[0];
+	for (int i = 0; i < 240; i++) {
+		memcpy( p, q, 256 * 2 );
+		p += 320;
+		q += 256;
+		if(i % 40 == 0) q += 256;
+	}
+}
+
+static void Blitf_256x246_to_320x240() 
+{
+	// 256x256
+	unsigned short *p = &VideoBuffer[(320-256)/2];
+	unsigned short *q = &BurnVideoBuffer[256 * 256 - 1];
+	for (int i = 0; i < 240; i++) {
+		for(int j = 0; j < 256; j++) {
+			*p++ = *q--;
+		}
+		p += 64;
+		if(i % 40 == 0) q -= 256;
+	}
+}
 
 static void Blit_256x248_to_320x240() 
 {
@@ -1856,7 +1882,7 @@ BLIT_TABLE blit_table[] = {
 	{320, 240, 272, 236, Blit,                    Blitf,                    Blitr_272x236_to_320x240, Blitr_272x236_to_320x240 }, // (igmo)
 	{320, 240, 256, 256, Blit_256x256_to_320x240, Blitf_256x256_to_320x240, Blitr_256x256_to_320x240, Blitrf_256x256_to_320x240}, // (ttmahjng)
 	{320, 240, 256, 248, Blit_256x248_to_320x240, Blitf_256x248_to_320x240, Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (mrflea)
-	{320, 240, 256, 246, Blit_256x248_to_320x240, Blitf_256x248_to_320x240, Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (kung fu master)
+	{320, 240, 256, 246, Blit_256x246_to_320x240, Blitf_256x246_to_320x240, Blitr_256x248_to_320x240, Blitr_256x248_to_320x240 }, // (kung fu master)
 	{320, 240, 256, 240, Blit,                    Blitf,                    Blitr_256x240_to_320x240, Blitrf_256x240_to_320x240}, // Sega, Capcom
 	{320, 240, 256, 234, Blit,                    Blitf,                    Blitr_256x234_to_320x240, Blitr_256x234_to_320x240 }, // (arabian)
 	{320, 240, 256, 224, Blit,                    Blitf,                    Blitr_256x224_to_320x240, Blitrf_256x224_to_320x240}, // Capcom, Sega
