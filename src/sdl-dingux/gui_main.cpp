@@ -1763,7 +1763,11 @@ void ss_prog_run(void)
 						SDL_InitSubSystem(SDL_INIT_VIDEO);
 					}
 
+#ifdef DEVICE_GCW0
+					gui_screen = SDL_SetVideoMode(320, 240, 16, SDL_HWSURFACE|SDL_TRIPLEBUF);
+#else
 					gui_screen = SDL_SetVideoMode(320, 240, 16, SDL_SWSURFACE);
+#endif
 					SDL_ShowCursor(0);
 
 					prep_bg();
@@ -2215,7 +2219,11 @@ void GuiRun()
 	use_language_pack = gui_load_language_pack();
 	set_language();
 
+#ifdef DEVICE_GCW0
+	gui_screen = SDL_SetVideoMode(GUI_SCREEN_W, GUI_SCREEN_H, 16, SDL_HWSURFACE | SDL_TRIPLEBUF);
+#else
 	gui_screen = SDL_SetVideoMode(GUI_SCREEN_W, GUI_SCREEN_H, 16, SDL_SWSURFACE);
+#endif
 
 	SDL_ShowCursor(0);
 	SDL_JoystickOpen(0);

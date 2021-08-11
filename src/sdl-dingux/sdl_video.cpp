@@ -1932,7 +1932,11 @@ int VideoInit()
 #else
 		SDL_DOUBLEBUF
 #endif
+#ifdef DEVICE_GCW0
+		) : SDL_HWSURFACE);
+#else
 		) : SDL_SWSURFACE);
+#endif
 
 	if(!(SDL_WasInit(SDL_INIT_VIDEO) & SDL_INIT_VIDEO)) {
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
@@ -2209,7 +2213,11 @@ int VideoInitForce320x240()
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 	}
 
+#ifdef DEVICE_GCW0
+	screen = SDL_SetVideoMode(320, 240, 16, SDL_HWSURFACE|SDL_TRIPLEBUF);
+#else
 	screen = SDL_SetVideoMode(320, 240, 16, SDL_SWSURFACE);
+#endif
 	SDL_ShowCursor(SDL_DISABLE);
 
 	if(!screen) {
