@@ -1991,10 +1991,11 @@ int VideoInit()
 		    }
 		}
 
+		flags = (options.vsync ? (SDL_HWSURFACE | SDL_TRIPLEBUF) : (SDL_HWSURFACE));
 		if (options.rotate == 1 || options.rotate == 3) {
-			screen = SDL_SetVideoMode(VideoBufferHeight, VideoBufferWidth, 16, SDL_HWSURFACE | SDL_TRIPLEBUF);
+			screen = SDL_SetVideoMode(VideoBufferHeight, VideoBufferWidth, 16, flags);
 		} else {
-			screen = SDL_SetVideoMode(VideoBufferWidth, VideoBufferHeight, 16, SDL_HWSURFACE | SDL_TRIPLEBUF);
+			screen = SDL_SetVideoMode(VideoBufferWidth, VideoBufferHeight, 16, flags);
 		}
 
 	} else {
