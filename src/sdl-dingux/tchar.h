@@ -52,7 +52,7 @@ typedef char TCHAR;
 #endif
 
 // FBA function, change this!
-#define dprintf printf
+//#define dprintf printf
 
 #endif // UNICODE
 

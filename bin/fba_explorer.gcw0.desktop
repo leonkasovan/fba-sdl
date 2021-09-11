@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=FinalBurnAlpha
 Comment=Arcade machine emulator - FBA 0.2.97.44
-Exec=fbasdl.dge %f
+Exec=fbasdl_gcw0.dge %f
 Terminal=false
 Type=Application
 StartupNotify=true
