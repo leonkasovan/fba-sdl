@@ -2030,7 +2030,15 @@ int VideoInit()
 	if (hwscale > 0) {
 	    int bVideoBufferWidth, bVideoBufferHeight;
 	    BurnDrvGetFullSize(&bVideoBufferWidth, &bVideoBufferHeight);
-	    if (bVideoBufferWidth < VideoBufferWidth) bVideoBufferWidth = VideoBufferWidth;
+	    // If resolution adjusted by gcd for hardware scaling is greater than defined in driver
+	    // adjust width and pitch to correct operation of blit functions 
+	    // (MetalSlug have a resolution 304x224 but is 320x224 adjusted for RG350M)
+	    if (bVideoBufferWidth < VideoBufferWidth) {
+		int temp = bVideoBufferWidth;
+		bVideoBufferWidth = VideoBufferWidth;
+		VideoBufferWidth = temp;
+		nBurnPitch = VideoBufferWidth * 2;
+	    }
 	    if (bVideoBufferHeight < VideoBufferHeight) bVideoBufferHeight = VideoBufferHeight;
 	    BurnVideoBuffer = (unsigned short *)malloc(bVideoBufferWidth * bVideoBufferHeight * 2);
 	    memset(BurnVideoBuffer, 0, bVideoBufferWidth * bVideoBufferHeight * 2);
@@ -2081,7 +2089,10 @@ int VideoInit()
 				}
 				break;
 		}
-		p_offset = 0;
+		if (VideoBufferWidth < screen->w)
+			p_offset = ( screen->w - VideoBufferWidth ) >> 1;
+		else
+			p_offset = 0;
 		r_offset = 0;
 		q_offset = VideoBufferWidth*VideoBufferHeight-1;
 	} else {
