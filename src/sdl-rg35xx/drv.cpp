@@ -2,7 +2,7 @@
 #include "burner.h"
 #include "snd.h"
 #include "sdl_progress.h"
-
+extern void debug_print(const char *str, int line);
 int bDrvOkay = 0;						// 1 if the Driver has been initted okay, and it's okay to use the BurnDrv functions
 
 static bool bSaveRAM = false;
@@ -12,18 +12,20 @@ static int DoLibInit()					// Do Init of Burn library driver
 	int nRet;
 
 	BzipOpen(false);
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	ProgressCreate();
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	nRet = BurnDrvInit();
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	BzipClose();
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	ProgressDestroy();
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	if (nRet) {
+		debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 		return 1;
 	} else {
+		debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 		return 0;
 	}
 }
@@ -85,18 +87,22 @@ int DrvInit(int nDrvNum, bool bRestore)
 		//BurnDrvExit(); // this may crash if it wasn't init properly
 
 		_stprintf (szTemp, _T("There was an error starting '%s'.\n"), BurnDrvGetText(DRV_FULLNAME));
+		debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
+		debug_print(szTemp, __LINE__);
 		return 1;
 	}
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	BurnExtLoadRom = DrvLoadRom;
-
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	bDrvOkay = 1;					// Okay to use all BurnDrv functions
 
 	bSaveRAM = false;
 	nBurnLayer = 0xFF;				// show all layers
 
 	// Reset the speed throttling code, so we don't 'jump' after the load
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	RunReset();
+	debug_print("src/sdl-rg35xx/drv.cpp", __LINE__);
 	return 0;
 }
 

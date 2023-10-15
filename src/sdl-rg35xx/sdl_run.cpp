@@ -31,7 +31,7 @@
 #include "sdl_menu.h"
 #include "sdl_video.h"
 #include "sdl_input.h"
-
+extern void debug_print(const char *str, int line);
 bool GameLooping;
 
 long long get_ticks_us()
@@ -83,9 +83,11 @@ void RunEmulator(int drvnum)
 
 #ifdef DEVICE_GCW0
 	if (hwscale > 0) {
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: VideoInitForce320x240",__LINE__);
 		VideoInitForce320x240(); // sets video mode to 320x240 so the loading screen looks right when a game uses a resolution different than 320x240
 	} else {
 #endif
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: VideoInit",__LINE__);
 		VideoInit();
 #ifdef DEVICE_GCW0
 	}
@@ -98,6 +100,7 @@ void RunEmulator(int drvnum)
 	InpDIP();
 
 	if(DrvInit(drvnum, false) != 0) {
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: Driver initialisation failed",__LINE__);
 		printf("Driver initialisation failed! Likely causes are:\n"
 			"- Corrupt/Missing ROM(s)\n"
 			"- I/O Error\n"
@@ -107,10 +110,11 @@ void RunEmulator(int drvnum)
 
 #ifdef DEVICE_GCW0
 	if (hwscale > 0) {
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: VideoInit",__LINE__);
 		VideoInit(); // after loading screen ends, video mode is set to the appropiate resolution for the game
 	}
 #endif
-
+	debug_print("src/sdl-rg35xx/sdl_run.cpp: RunReset",__LINE__);
 	RunReset();
 
 	GameLooping = true;
@@ -118,9 +122,9 @@ void RunEmulator(int drvnum)
 	bShowFPS = options.showfps;
 
 	if (BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED) printf("flipped!\n");
-
+	debug_print("src/sdl-rg35xx/sdl_run.cpp: Let's go!",__LINE__);
 	printf ("Let's go!\n");
-
+	debug_print("src/sdl-rg35xx/sdl_run.cpp: VideoClear",__LINE__);
 	VideoClear();
 
 #ifdef FBA_DEBUG
@@ -129,6 +133,7 @@ void RunEmulator(int drvnum)
 
 #if 0
 	{
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: Loop 0",__LINE__);
 		int now, start, lim=0, wait=0, frame_count=0, skipped_frames=0, draw_this_frame=true, fps=0;
 		int frame_limit = nBurnFPS/100, frametime = 100000000/nBurnFPS; // 16667 usec
 		int skip_limit = 0;
@@ -172,6 +177,7 @@ void RunEmulator(int drvnum)
 	}
 #else
 	{
+		debug_print("src/sdl-rg35xx/sdl_run.cpp: Loop 1",__LINE__);
 		int now, done=0, timer = 0, ticks=0, tick=0, i=0, fps = 0;
 		unsigned int frame_limit = nBurnFPS/100, frametime = 100000000/nBurnFPS;
 

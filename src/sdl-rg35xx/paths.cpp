@@ -19,7 +19,7 @@ char szAppEEPROMPath[MAX_PATH] = "./.fba/games/";
 
 void BurnPathsInit()
 {
-	printf("BurnPathsInit\n");
+	printf("BurnPathsInit: begin\n");
 #ifndef WIN32
 	char *home = getenv("HOME");
 	if(home) sprintf(szAppHomePath, "%s/.fba", home);
@@ -29,27 +29,27 @@ void BurnPathsInit()
 	}
 	else {
 		printf("dir not exists,will create!\n");
-		int status = mkdir(szAppHomePath, 0777);
+		int status = mkdir(szAppHomePath, 0700);
 		if(status == -1) {
 			printf("error when mkdir:%d\n",errno);
 			getcwd(szAppHomePath, MAX_PATH);
 			strcat(szAppHomePath, "/.fba");
-			mkdir(szAppHomePath, 0777);
+			mkdir(szAppHomePath, 0700);
 			printf("set szAppHomePath:%s\n",szAppHomePath);
 		}
 	}
 
 	sprintf(szAppSavePath, "%s/saves", szAppHomePath);
-	mkdir(szAppSavePath, 0777);
+	mkdir(szAppSavePath, 0700);
 
 	sprintf(szAppConfigPath, "%s/configs", szAppHomePath);
-	mkdir(szAppConfigPath, 0777);
+	mkdir(szAppConfigPath, 0700);
 
 	sprintf(szAppPreviewPath, "%s/previews", szAppHomePath);
-	mkdir(szAppPreviewPath, 0777);
+	mkdir(szAppPreviewPath, 0700);
 
 	sprintf(szAppSamplesPath, "%s/samples", szAppHomePath);
-	mkdir(szAppSamplesPath, 0777);
+	mkdir(szAppSamplesPath, 0700);
 #else
 	getcwd(szAppHomePath, MAX_PATH);
 	strcat(szAppHomePath, "/.fba");
@@ -68,9 +68,10 @@ void BurnPathsInit()
 	mkdir(szAppSamplesPath);
 
 	sprintf(szAppHDDPath, "%s/hdd/", szAppHomePath);
-	mkdir(szAppHDDPath, 0777);
+	mkdir(szAppHDDPath, 0700);
 
 	sprintf(szAppEEPROMPath, "%s/games/", szAppHomePath);
-	mkdir(szAppEEPROMPath, 0777);
+	mkdir(szAppEEPROMPath, 0700);
 #endif
+	printf("BurnPathsInit: end\n");
 }

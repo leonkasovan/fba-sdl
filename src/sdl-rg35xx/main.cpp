@@ -31,6 +31,18 @@
 #include "sdl_video.h"
 #include "gui_main.h"
 
+// debug_print(, __LINE__);
+void debug_print(const char *str, int line){
+	FILE *f;
+
+	f = fopen("debug.txt","a");
+	if (f){
+		fputs(str, f);
+		fprintf(f, " line: %d\n", line);
+		fclose(f);
+	}
+}
+
 char szAppBurnVer[16] = VERSION;
 
 void CreateCapexLists()
@@ -239,56 +251,44 @@ int main(int argc, char **argv )
 
 	BurnLibInit();		// init Burn core
 	BurnPathsInit();	// init paths or create them if needed
-/*
-	if (argc < 2) {
-		int c;
-		printf ("Usage: %s <path to rom><shortname>.zip\n"
-			"   ie: %s ./uopoko.zip\n"
-			" Note: Path and .zip extension are mandatory.\n\n", argv[0], argv[0]);
-		printf ("Supported (but not necessarily working) roms:\n\n");
-
-		for(nBurnDrvSelect[0] = 0; nBurnDrvSelect[0] < nBurnDrvCount; nBurnDrvSelect[0]++) {
-			nBurnDrvActive = nBurnDrvSelect[0];
-			printf("%-20s ", BurnDrvGetTextA(DRV_NAME));
-			c++;
-			if(c == 3) {
-				c = 0;
-				printf("\n");
-			}
-		}
-		printf ("\n\n");
-		CreateCapexLists(); // generate rominfo.fba and zipname.fba
-		return 0;
-	}
-*/
+	printf("main.cpp: line %d\n",__LINE__);
 	ConfigGameDefault();
+	printf("main.cpp: line %d\n",__LINE__);
 
 	// alter cfg if any param is given
 	if (argc >= 2)
 		parse_cmd(argc, argv, path);
 
+	printf("main.cpp: line %d\n",__LINE__);
 	ConfigAppLoad();
+	printf("main.cpp: line %d\n",__LINE__);
 
 	if((SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE)) < 0) {
 		printf("Sdl failed to init\n");
 		exit(0);
 	}
+	printf("main.cpp: line %d\n",__LINE__);
 
-	if (argc < 2)
+	if (argc < 2){
 		GuiRun();
-	else {
+		printf("main.cpp: line %d\n",__LINE__);
+	} else {
 		int drv;
 		if((drv = FindDrvByFileName(path)) >= 0) {
             // Loads game config once game selected using command line
 			ConfigGameLoad();
+			printf("main.cpp: line %d\n",__LINE__);
 			RunEmulator(drv);
+			printf("main.cpp: line %d\n",__LINE__);
         }
     }
 
 	BurnLibExit();
+	printf("main.cpp: line %d\n",__LINE__);
 
 	if (argc < 2)
 		ConfigAppSave();
+	printf("main.cpp: line %d\n",__LINE__);
 	SDL_Quit();
 
 	return 0;

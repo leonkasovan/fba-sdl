@@ -324,12 +324,12 @@ HOSTCC = gcc
 HOSTCXX = g++
 CC	= /opt/miyoo/bin/arm-miyoo-linux-uclibcgnueabi-gcc
 CXX	= /opt/miyoo/bin/arm-miyoo-linux-uclibcgnueabi-g++
-LD	= $(CXX)
+LD	= $(CC)
 AS	= /opt/miyoo/bin/arm-miyoo-linux-uclibcgnueabi-as
 
 HOSTCFLAGS = $(incdir)
-CFLAGS   = -O3 -marm -march=armv7-a -mtune=cortex-a9 -mfpu=neon-fp16 -mfloat-abi=softfp -ffast-math -DLSB_FIRST -ffunction-sections -fdata-sections -fomit-frame-pointer -Wno-write-strings
-CXXFLAGS = -std=gnu++11 -O3 -marm -march=armv7-a -mtune=cortex-a9 -mfpu=neon-fp16 -mfloat-abi=softfp -ffast-math -DLSB_FIRST -ffunction-sections -fdata-sections -fomit-frame-pointer -Wno-write-strings
+CFLAGS   = -O2 -marm -march=armv7-a -mtune=cortex-a9 -mfpu=neon-fp16 -mfloat-abi=softfp -DLSB_FIRST -Wno-write-strings
+CXXFLAGS = -std=gnu++11 -O2 -marm -march=armv7-a -mtune=cortex-a9 -mfpu=neon-fp16 -mfloat-abi=softfp -DLSB_FIRST -Wno-write-strings
 
 CFLAGS += -D__cdecl="" -D__fastcall="" -Wno-narrowing
 CXXFLAGS += -D__cdecl="" -D__fastcall="" -Wno-narrowing
@@ -373,7 +373,8 @@ endif
 
 CFLAGS += $(DEF) $(incdir)
 CXXFLAGS += $(DEF) $(incdir)
-MORELDFLAGS = -Wl,-zcommon-page-size=2097152 -Wl,-zmax-page-size=2097152 -Wl,--as-needed -Wl,--gc-sections -s
+# MORELDFLAGS = -Wl,-zcommon-page-size=2097152 -Wl,-zmax-page-size=2097152 -Wl,--as-needed -Wl,--gc-sections -s
+MORELDFLAGS = -s
 ASFLAGS = -I$(incdir) -O1 -G0
 
 #

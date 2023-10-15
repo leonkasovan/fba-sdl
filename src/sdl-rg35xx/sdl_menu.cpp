@@ -533,7 +533,7 @@ static inline void copy_file( const char* srce_file, const char* dest_file )
 	catch( const std::exception& e )
 	{
 		// std::cerr << "copy_file() err: " << e.what() << '\n' ;
-		puts(e.what());
+		// puts(e.what());
 	}
 }
 

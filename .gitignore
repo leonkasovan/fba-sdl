@@ -1,6 +1,6 @@
 obj
 src/dep/generated
-bin/fbasdl*.dge
+bin/fbasdl*
 bin/fba*.opk
 bin/fba_ui_only*.opk
 nbproject/

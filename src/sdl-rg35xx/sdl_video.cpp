@@ -19,12 +19,13 @@
 
 #include <stdio.h>
 #include <SDL/SDL.h>
-
+#include <sys/stat.h>
 #include "burner.h"
 #include "sdl_run.h"
 #include "sdl_video.h"
 #include "sdl_input.h"
 
+extern void debug_print(const char *str, int line);
 #define COLORMIX(a, b) ( ((((a & 0xF81F) + (b & 0xF81F)) >> 1) & 0xF81F) | ((((a & 0x07E0) + (b & 0x07E0)) >> 1) & 0x07E0) )
 
 int VideoBufferWidth = 0;
@@ -1846,6 +1847,25 @@ static void Blitrf()
 	}
 }
 
+static void Blitr()
+{
+	unsigned short * p = &VideoBuffer[p_offset];
+	unsigned short * q = BurnVideoBuffer;
+	unsigned short * q1 = NULL;
+
+	q += BW;
+	p += (r_offset / 2);
+	for (int i=0; i<BW; i++) {
+		--q;
+		q1 = q;
+		for (int j=0; j<BH; j++) {
+			*p++ = *q1;
+			q1 += BW;
+		}
+		p += r_offset;
+	}
+}
+
 typedef struct
 {
 	int dst_w;
@@ -1923,26 +1943,22 @@ static int gcd(int a, int b, int step=0, int dir=-1)
 }
 #endif
 
-int VideoInit()
+bool file_exists(char *path) {
+	struct stat s;
+	return (stat(path, &s) == 0 && s.st_mode & S_IFREG); // exists and is file
+}
+
+int VideoInit_0()
 {
 	// Initialize SDL
-	int flags = (options.vsync ? (SDL_HWSURFACE |
-#ifdef SDL_TRIPLEBUF
-		SDL_TRIPLEBUF
-#else
-		SDL_DOUBLEBUF
-#endif
-#ifdef DEVICE_GCW0
-		) : SDL_HWSURFACE);
-#else
-		) : SDL_SWSURFACE);
-#endif
+	int flags = options.vsync ? SDL_HWSURFACE | SDL_DOUBLEBUF : SDL_HWSURFACE;
 
 	if(!(SDL_WasInit(SDL_INIT_VIDEO) & SDL_INIT_VIDEO)) {
 		SDL_InitSubSystem(SDL_INIT_VIDEO);
 	}
 
 #ifdef DEVICE_GCW0
+	debug_print("src/sdl-rg35xx/sdl_video.cpp: SDL_SetVideoMode for DEVICE_GCW0.", __LINE__);
 	int hwscale = options.hwscaling;
 	BurnDrvGetFullSize(&VideoBufferWidth, &VideoBufferHeight);
 	printf("w=%d h=%d\n",VideoBufferWidth, VideoBufferHeight);
@@ -2006,8 +2022,10 @@ int VideoInit()
 #endif
 
 	if(!screen) {
+		debug_print("src/sdl-rg35xx/sdl_video.cpp: SDL_SetVideoMode screen not initialised.", __LINE__);
 		printf("SDL_SetVideoMode screen not initialised.\n");
 	} else {
+		debug_print("src/sdl-rg35xx/sdl_video.cpp: SDL_SetVideoMode successful.", __LINE__);
 		printf("SDL_SetVideoMode successful.\n");
 	}
 
@@ -2192,6 +2210,126 @@ int VideoInit()
 #ifdef DEVICE_GCW0
 	}
 #endif
+
+	return 0;
+}
+
+int VideoInit()
+{
+	char tmp[1024];
+	// Initialize SDL
+	int flags = (options.vsync ? (SDL_HWSURFACE |
+	#ifdef SDL_TRIPLEBUF
+		SDL_TRIPLEBUF
+	#else
+		SDL_DOUBLEBUF
+	#endif
+	) : SDL_SWSURFACE);
+
+	if(!(SDL_WasInit(SDL_INIT_VIDEO) & SDL_INIT_VIDEO)) {
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
+
+	int hwscale = file_exists("/sys/devices/platform/jz-lcd.0/keep_aspect_ratio") || file_exists("/proc/jz/ipu_ratio"); //options.hwscaling;
+	bool bRotated = options.rotate;
+
+	BurnDrvGetFullSize(&VideoBufferWidth, &VideoBufferHeight);
+	sprintf(tmp, "screen->w=%d screen->h=%d VideoBufferWidth=%d VideoBufferHeight=%d hwscale=%d",screen->w,screen->h,VideoBufferWidth, VideoBufferHeight, hwscale);
+	debug_print(tmp, __LINE__);
+
+	bool bVertical = bRotated && (BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL);
+
+	if (hwscale) {
+		if (bVertical /* bRotated */) {
+			screen = SDL_SetVideoMode(VideoBufferHeight, VideoBufferWidth, 16, flags);
+		} else {
+			screen = SDL_SetVideoMode(VideoBufferWidth, VideoBufferHeight, 16, flags);
+		}
+	} else {
+		screen = SDL_SetVideoMode(320, 240, 16, flags);
+	}
+
+	if (!screen) {
+		printf("SDL_SetVideoMode screen not initialised.\n");
+		debug_print("SDL_SetVideoMode screen not initialised.", __LINE__);
+	} else {
+		printf("SDL_SetVideoMode successful.\n");
+		debug_print("SDL_SetVideoMode successful.", __LINE__);
+	}
+
+	VideoBuffer = (unsigned short*)screen->pixels;
+
+	SDL_ShowCursor(SDL_DISABLE);
+	SDL_WM_SetCaption("Final Burn SDL", 0);
+
+	nBurnBpp = 2;
+	BurnHighCol = myHighCol16;
+
+	BurnRecalcPal();
+	nBurnPitch = VideoBufferWidth * 2;
+	PhysicalBufferWidth = screen->w;
+	BurnVideoBuffer = (unsigned short *)malloc(VideoBufferWidth * VideoBufferHeight * 2);
+	memset(BurnVideoBuffer, 0, VideoBufferWidth * VideoBufferHeight * 2);
+
+
+	if (hwscale) {
+		if (bVertical) {
+			if (BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED) {
+				BurnerVideoTrans = Blitrf;
+			} else {
+				BurnerVideoTrans = Blitr;
+			}
+			p_offset = 0;
+			r_offset = 0;
+		} else {
+			if (BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED) {
+				BurnerVideoTrans = Blitf;
+			} else {
+				BurnerVideoTrans = Blit;
+			}
+			p_offset = 0;
+			q_offset = VideoBufferWidth * VideoBufferHeight - 1;
+		}
+	} else {
+		BurnerVideoTrans = Blit_320x240_to_320x240; // default blit
+		if(!bVertical && VideoBufferWidth <= screen->w && VideoBufferHeight <= screen->h) {
+			if(BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED)
+				BurnerVideoTrans = Blitf;
+			else
+				BurnerVideoTrans = Blit;
+		} else if(bVertical && VideoBufferWidth <= screen->h && VideoBufferHeight <= screen->w) {
+			if(BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED)
+				BurnerVideoTrans = Blitrf;
+			else
+				BurnerVideoTrans = Blitr;
+		} else {
+			// if source buffer is bigger than screen buffer then find an appropriate downscaler
+			for(int i = 0; blit_table[i].dst_w != 0; i++) {
+				if(blit_table[i].dst_w == screen->w && blit_table[i].dst_h == screen->h &&
+				   blit_table[i].src_w == VideoBufferWidth && blit_table[i].src_h == VideoBufferHeight) {
+					if (bVertical && (BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED))
+						BurnerVideoTrans = blit_table[i].blitrf;
+					else if (BurnDrvGetFlags() & BDF_ORIENTATION_FLIPPED)
+						BurnerVideoTrans = blit_table[i].blitf;
+					else if (bVertical)
+						BurnerVideoTrans = blit_table[i].blitr;
+					else
+						BurnerVideoTrans = blit_table[i].blit;
+					break;
+				}
+			}
+		}
+
+		if (BurnerVideoTrans == Blit || BurnerVideoTrans == Blitf || BurnerVideoTrans == Blitr || BurnerVideoTrans == Blitrf) {
+			if (bVertical) {
+				p_offset = ((screen->h - VideoBufferWidth)/2)*screen->w;
+				r_offset = screen->w - VideoBufferHeight;
+			} else {
+				p_offset = (screen->w - VideoBufferWidth)/2 + (screen->h - VideoBufferHeight)/2*screen->w;
+				q_offset = VideoBufferWidth*VideoBufferHeight-1;
+			}
+		}
+	}
 
 	return 0;
 }

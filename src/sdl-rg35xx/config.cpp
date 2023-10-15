@@ -221,8 +221,10 @@ void ConfigGameAllDefault()
 
 void ConfigGameDefault()
 {
-	bool bVertical = BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL;
-	printf("ConfigGameDefault\n");
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
+	// bool bVertical = BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL;
+	bool bVertical = false;
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	if(bVertical) {
 		if (ConfigGameLoadVDefault()) {
 			printf("ConfigGameLoadVDefault true\n");
@@ -234,14 +236,15 @@ void ConfigGameDefault()
 			return;
 		}
 	}
+	printf("setGameDefault\n");
 	setGameDefault(bVertical);
 }
 
 int ConfigGameLoad(FILE * f)
 {
-	char arg1[128];
+	char arg1[1024];
 	signed long argd;
-	char line[256];
+	char line[1024];
 
 	while(fgets(line,sizeof(line),f) != NULL) {
 		sscanf(line, "%s %d", &arg1, &argd);
@@ -293,22 +296,23 @@ int ConfigGameLoad(FILE * f)
 
 int ConfigGameLoad()
 {
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	FILE *f;
 	char cfgname[MAX_PATH];
 
 	sprintf((char*)cfgname, "%s/%s.cfg", szAppConfigPath, BurnDrvGetTextA(DRV_NAME));
-	
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	if(!(f = fopen(cfgname,"r"))) {
 		// set default values and exit
 		printf("no found config file:%s set default\n", cfgname);
 		ConfigGameDefault();
 		return 0;
 	}
-
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	int ret = ConfigGameLoad(f);
-
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	fclose(f);
-
+	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	return ret;
 }
 

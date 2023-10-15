@@ -1,0 +1,5 @@
+Sebagian rom sudah bisa keluar gambar.
+Demon Front belum bisa keluar gambar.
+Mungkin karena setting VideoInit yang tidak sesuai dengan resolusi game.
+
+Pelajari di FBNeo src/intf/video/sdl/vid_sdlfx.cpp line 162 tentang SDL_SetVideoMode
