@@ -170,29 +170,29 @@ void setGameDefault(bool vertical)
 	options.z80core = 0;
 	options.sense = 100;
 
-	keymap.up = SDLK_UP;
-	keymap.down = SDLK_DOWN;
-	keymap.left = SDLK_LEFT;
-	keymap.right = SDLK_RIGHT;
+	keymap.up = 0x77;
+	keymap.down = 0x73;
+	keymap.left = 0x71;
+	keymap.right = 0x64;
 	if(vertical) {
-		keymap.fire1 = SDLK_LALT;	// B
-		keymap.fire2 = SDLK_LCTRL;	// A
-		keymap.fire3 = SDLK_LSHIFT;	// Y
-		keymap.fire4 = SDLK_SPACE;	// X
+		keymap.fire1 = 0x5F;	// B
+		keymap.fire2 = 0x5E;	// A
+		keymap.fire3 = 0x61;	// Y
+		keymap.fire4 = 0x60;	// X
 	} else {
-		keymap.fire1 = SDLK_LSHIFT;	// Y
-		keymap.fire2 = SDLK_LALT;	// B
-		keymap.fire3 = SDLK_SPACE;	// X
-		keymap.fire4 = SDLK_LCTRL;	// A
+		keymap.fire1 = 0x79;	// Y
+		keymap.fire2 = 0x62;	// B
+		keymap.fire3 = 0x78;	// X
+		keymap.fire4 = 0x61;	// A
 	}
-	keymap.fire5 = SDLK_TAB;	// L
-	keymap.fire6 = SDLK_BACKSPACE;	// R
-	keymap.coin1 = SDLK_ESCAPE;	// SELECT
-	keymap.start1 = SDLK_RETURN;	// START
+	keymap.fire5 = 0x64;	// L
+	keymap.fire6 = 0x65;	// R
+	keymap.coin1 = 0x6E;	// SELECT
+	keymap.start1 = 0x6D;	// START
 	keymap.pause = SDLK_p;
-	keymap.quit = SDLK_q;
-	keymap.qsave = SDLK_s;		// quick save
-	keymap.qload = SDLK_l;		// quick load
+	keymap.quit = 0x75;
+	keymap.qsave = 0x66;		// quick save
+	keymap.qload = 0x67;		// quick load
 
 	autofire.fire1.key = keymap.fire3;
 	autofire.fire2.key = keymap.fire4;
@@ -221,10 +221,10 @@ void ConfigGameAllDefault()
 
 void ConfigGameDefault()
 {
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
+	if (nBurnDrvActive == ~0U)
+		return;
 	// bool bVertical = BurnDrvGetFlags() & BDF_ORIENTATION_VERTICAL;
 	bool bVertical = false;
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	if(bVertical) {
 		if (ConfigGameLoadVDefault()) {
 			printf("ConfigGameLoadVDefault true\n");
@@ -236,7 +236,6 @@ void ConfigGameDefault()
 			return;
 		}
 	}
-	printf("setGameDefault\n");
 	setGameDefault(bVertical);
 }
 
@@ -296,23 +295,18 @@ int ConfigGameLoad(FILE * f)
 
 int ConfigGameLoad()
 {
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	FILE *f;
 	char cfgname[MAX_PATH];
 
 	sprintf((char*)cfgname, "%s/%s.cfg", szAppConfigPath, BurnDrvGetTextA(DRV_NAME));
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	if(!(f = fopen(cfgname,"r"))) {
 		// set default values and exit
 		printf("no found config file:%s set default\n", cfgname);
 		ConfigGameDefault();
 		return 0;
 	}
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	int ret = ConfigGameLoad(f);
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	fclose(f);
-	printf("src/sdl-rg35xx/config.cpp: line %d\n",__LINE__);
 	return ret;
 }
 
