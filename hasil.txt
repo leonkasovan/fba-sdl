@@ -3,3 +3,25 @@ Demon Front belum bisa keluar gambar.
 Mungkin karena setting VideoInit yang tidak sesuai dengan resolusi game.
 
 Pelajari di FBNeo src/intf/video/sdl/vid_sdlfx.cpp line 162 tentang SDL_SetVideoMode
+
+src\intf\video\vid_softfx.cpp line 559
+void VidSoftFXApplyEffect(unsigned char* ps, unsigned char* pd, int nPitch)
+{
+	// Apply effects to the image
+	switch (nSoftFXBlitter) {
+
+		case FILTER_PLAIN: {											// Software 2x zoom
+			if (nVidImageBPP == 2) {						// 15/16-bit
+				for (int y = 0; y < nSoftFXImageHeight; y++, pd += (nPitch << 1), ps += nSoftFXImagePitch) {
+					unsigned short* psEnd = (unsigned short*)(ps + nSoftFXImagePitch);
+					unsigned short* pdpc = (unsigned short*)pd;
+					unsigned short* pdpn = (unsigned short*)(pd + nPitch);
+					unsigned short* psp = (unsigned short*)ps;
+					do {
+						*pdpc++ = *psp;
+						*pdpc++ = *psp;
+						*pdpn++ = *psp;
+						*pdpn++ = *psp++;
+					} while (psp < psEnd);
+				}
+			} else {	
